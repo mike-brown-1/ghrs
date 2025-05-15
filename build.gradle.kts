@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     application
+    id("com.github.johnrengelman.shadow") version("8.1.1")
+    id("com.github.ben-manes.versions") version("0.51.0")
+
 }
 
 repositories {
@@ -9,8 +12,12 @@ repositories {
 
 dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
     implementation("org.json:json:20231013")
+    implementation("com.github.ajalt.clikt:clikt:5.0.3")
     implementation(kotlin("stdlib"))
+    runtimeOnly("org.slf4j:slf4j-api:2.0.17")
+    runtimeOnly("org.slf4j:slf4j-simple:2.0.17")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation(libs.junit.jupiter.engine)
@@ -24,7 +31,7 @@ java {
 }
 
 application {
-    mainClass = "ghutil.GitHubRepositorySearchKt"
+    mainClass = "ghutil.CommandKt"
 }
 
 tasks.named<Test>("test") {
