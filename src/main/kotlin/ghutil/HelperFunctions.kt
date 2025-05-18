@@ -9,7 +9,8 @@ import java.net.URLEncoder
 // TODO update to handle sort and order options
 fun searchGitHubRepositories(
     searchTerms: List<String>,
-    languages: List<String>,
+    qualifiers: String,
+//    languages: List<String>,
     token: String? = null
 ): List<Repository> {
     val result = mutableListOf<Repository>()
@@ -20,11 +21,12 @@ fun searchGitHubRepositories(
     searchTerms.forEach { term ->
         queryBuilder.append("${URLEncoder.encode(term, "UTF-8")} ")
     }
+    queryBuilder.append(qualifiers)
 
     // Add language filter if any
-    languages.forEach { language ->
-        queryBuilder.append(" language:$language")
-    }
+//    languages.forEach { language ->
+//        queryBuilder.append(" language:$language")
+//    }
 
     // sort options:
     // Sorts the results of your query by number of stars , forks , or help-wanted-issues or how recently
@@ -65,5 +67,49 @@ fun searchGitHubRepositories(
             repo.optString("description", "No description"),
             repo.getInt("stargazers_count"), repo.getString("html_url")))
     }
+    return result
+}
+
+fun collectQualifiers(stars: List<String>?, languages: List<String>): String {
+    val collection = StringBuilder()
+    collection.append(starsQualifier(stars))
+    collection.append(languageQualifier(languages))
+
+    return collection.toString()
+}
+
+private fun starsQualifier(stars: List<String>?): String {
+    // >=200, <100, and <=99, 100..500
+    var result = ""
+    val operators = listOf(">", ">=", "<", "<=")
+    if (stars != null) {
+        if (stars.size == 2) {
+            if (stars[0] in operators && stars[1].toIntOrNull() != null) {
+                result = " stars:${stars[0]}${stars[1]}"
+            }
+            println("stars parameter must be <operator>,<number of stars>")
+        } else if (stars.size == 3) {
+            if (stars[0].toIntOrNull() != null && stars[1] == ".." && stars[2].toIntOrNull() != null) {
+                result = " stars:${stars[0]}..${stars[2]}"
+            }
+        } else {
+            println("Invalid stars param. Must be <op>,number or number,..,number")
+            println("Valid operators are: >, >=, <, <=")
+        }
+    }
+    return result
+}
+
+private fun languageQualifier(languages: List<String>): String {
+    var result = ""
+
+    if (languages.size > 0) {
+        val queryBuilder = StringBuilder()
+        languages.forEach { language ->
+            queryBuilder.append(" language:$language")
+        }
+        result = queryBuilder.toString()
+    }
+
     return result
 }

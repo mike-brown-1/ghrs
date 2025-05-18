@@ -10,6 +10,7 @@ import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.choice
+import java.lang.StringBuilder
 import kotlin.system.exitProcess
 
 data class Repository(val name: String, val owner: String, val description: String,
@@ -32,13 +33,21 @@ class Command: CliktCommand(name = "ghsearch") {
         .help("Specify sort order.")
         .choice("asc", "desc")
 
+    val stars by option("--stars")
+        .help("Constrain search based on stars (>=,200)")
+        .split(",")
+
     override fun run() {
         println("running, terms: ${terms}, languages: ${languages}, sort: ${sort}, sortOrder: ${order}")
         if (terms.size == 0) {
             echo("You must provide a term to search for", trailingNewline = true, err = true)
             exitProcess(10)
         }
-        val repositories = searchGitHubRepositories(terms, languages)
+        val qualifiers = collectQualifiers(stars, languages)
+
+//        println("stars: ${stars}, size: ${stars?.size}")
+
+        val repositories = searchGitHubRepositories(terms, qualifiers)
         repositories.forEach { repo ->
             println("\n\nRepository: ${repo.name} by ${repo.owner}")
             println("Description: ${repo.description}")
