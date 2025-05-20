@@ -15,6 +15,7 @@ dependencies {
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
     implementation("org.json:json:20231013")
     implementation("com.github.ajalt.clikt:clikt:5.0.3")
+    implementation("org.kohsuke:github-api:2.0-rc.3")
     implementation(kotlin("stdlib"))
     runtimeOnly("org.slf4j:slf4j-api:2.0.17")
     runtimeOnly("org.slf4j:slf4j-simple:2.0.17")
@@ -33,6 +34,7 @@ java {
 application {
     mainClass = "ghutil.CommandKt"
 }
+version = "0.1.0"
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.

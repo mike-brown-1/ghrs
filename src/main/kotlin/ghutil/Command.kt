@@ -34,7 +34,7 @@ class Command: CliktCommand(name = "ghsearch") {
         .choice("asc", "desc")
 
     val stars by option("--stars")
-        .help("Constrain search based on stars (>=,200)")
+        .help("Constrain search based on stars: operator ',' count (>=,200)")
         .split(",")
 
     override fun run() {
@@ -43,15 +43,15 @@ class Command: CliktCommand(name = "ghsearch") {
             echo("You must provide a term to search for", trailingNewline = true, err = true)
             exitProcess(10)
         }
-        val qualifiers = collectQualifiers(stars, languages)
-
-//        println("stars: ${stars}, size: ${stars?.size}")
-
-        val repositories = searchGitHubRepositories(terms, qualifiers)
-        repositories.forEach { repo ->
-            println("\n\nRepository: ${repo.name} by ${repo.owner}")
-            println("Description: ${repo.description}")
-            println("Stars: ${repo.stars}, URL: ${repo.url}")
+        val repositories = searchPublicRepos(terms, languages)
+        var item = 1
+        run {
+            repositories.forEach { repo ->
+                println("\n\nRepository: ${repo.name} by ${repo.owner}")
+                println("Description: ${repo.description}")
+                println("Stars: ${repo.stargazersCount}, URL: ${repo.url}")
+                if (item++ > 25) return@run
+            }
         }
     }
 }
