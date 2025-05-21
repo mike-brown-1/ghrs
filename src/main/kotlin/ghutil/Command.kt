@@ -10,7 +10,6 @@ import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.choice
-import java.lang.StringBuilder
 import kotlin.system.exitProcess
 
 data class Repository(val name: String, val owner: String, val description: String,
@@ -43,13 +42,14 @@ class Command: CliktCommand(name = "ghsearch") {
             echo("You must provide a term to search for", trailingNewline = true, err = true)
             exitProcess(10)
         }
-        val repositories = searchPublicRepos(terms, languages)
+        val repositories = searchPublicRepos(terms, languages, stars, sort, order)
         var item = 1
         run {
             repositories.forEach { repo ->
-                println("\n\nRepository: ${repo.name} by ${repo.owner}")
+                println("\n\nRepository: ${repo.name} by ${repo.owner.login}/${repo.owner.name}/${repo.owner.company}")
                 println("Description: ${repo.description}")
                 println("Stars: ${repo.stargazersCount}, URL: ${repo.url}")
+                println("Created: ${repo.createdAt} / Updated: ${repo.updatedAt}")
                 if (item++ > 25) return@run
             }
         }
