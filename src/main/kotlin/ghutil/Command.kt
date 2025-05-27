@@ -10,10 +10,8 @@ import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.choice
+import com.github.ajalt.clikt.parameters.types.int
 import kotlin.system.exitProcess
-
-data class Repository(val name: String, val owner: String, val description: String,
-    val stars: Int, val url: String)
 
 class Command: CliktCommand(name = "ghsearch") {
     val terms: List<String> by argument()
@@ -36,6 +34,10 @@ class Command: CliktCommand(name = "ghsearch") {
         .help("Constrain search based on stars: operator ',' count (>=,200)")
         .split(",")
 
+    val limit: Int? by option("--limit")
+        .help("Limit the search to x repositories")
+        .int()
+
     override fun run() {
         println("running, terms: ${terms}, languages: ${languages}, sort: ${sort}, sortOrder: ${order}")
         if (terms.size == 0) {
@@ -50,7 +52,7 @@ class Command: CliktCommand(name = "ghsearch") {
                 println("Description: ${repo.description}")
                 println("Stars: ${repo.stargazersCount}, URL: ${repo.url}")
                 println("Created: ${repo.createdAt} / Updated: ${repo.updatedAt}")
-                if (item++ > 25) return@run
+                if (limit != null && item++ == limit!!) return@run
             }
         }
     }
