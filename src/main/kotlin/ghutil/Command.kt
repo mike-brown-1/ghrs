@@ -31,7 +31,7 @@ class Command: CliktCommand(name = "ghsearch") {
         .choice("asc", "desc")
 
     val stars by option("--stars")
-        .help("Constrain search based on stars: operator ',' count (>=,200)")
+        .help("Constrain search based on stars: operator ',' count (example: '>=,200'). Make sure you quote the option value.")
         .split(",")
 
     val limit: Int? by option("--limit")
