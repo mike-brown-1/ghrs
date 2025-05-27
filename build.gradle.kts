@@ -34,7 +34,7 @@ java {
 application {
     mainClass = "ghutil.CommandKt"
 }
-version = "0.2.0"
+version = "0.3.0"
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
