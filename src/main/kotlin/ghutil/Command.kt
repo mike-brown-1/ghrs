@@ -38,19 +38,25 @@ class Command: CliktCommand(name = "ghsearch") {
         .help("Limit the search to x repositories")
         .int()
 
+    val configFile: String? by option("--config")
+        .help("Configuration file that will be overridden by command line options")
+
     override fun run() {
-        println("running, terms: ${terms}, languages: ${languages}, sort: ${sort}, sortOrder: ${order}")
-        if (terms.size == 0) {
-            echo("You must provide a term to search for", trailingNewline = true, err = true)
-            exitProcess(10)
+        var config = Config()
+//        configFile?.let { config = loadConfig(it) }
+        if (configFile != null) {
+            val delegateString: String = configFile!!
+            config = loadConfig(delegateString)
         }
-        val repositories = searchPublicRepos(terms, languages, stars, sort, order)
+        config = overrideConfig(config, terms, languages, sort, order, stars, limit)
+        println("running, terms: ${config.terms}, languages: ${config.languages}, sort: ${config.sort}, sortOrder: ${config.order}")
+        val repositories = searchPublicRepos(config)
         var item = 1
         run {
             repositories.forEach { repo ->
                 println("\n\nRepository: ${repo.name} by ${repo.owner.login}/${repo.owner.name}/${repo.owner.company}")
                 println("Description: ${repo.description}")
-                println("Stars: ${repo.stargazersCount}, URL: ${repo.url}")
+                println("Stars: ${repo.stargazersCount}, URL: ${repo.htmlUrl}")
                 println("Created: ${repo.createdAt} / Updated: ${repo.updatedAt}")
                 if (limit != null && item++ == limit!!) return@run
             }
