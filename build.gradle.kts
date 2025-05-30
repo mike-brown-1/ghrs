@@ -38,7 +38,7 @@ java {
 application {
     mainClass = "ghutil.CommandKt"
 }
-version = "0.4.0"
+version = "0.5.0"
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
@@ -60,4 +60,6 @@ tasks.withType<DependencyUpdatesTask> {
 
 detekt {
     ignoreFailures = true
+    toolVersion = "1.23.8" // Use the appropriate version
+    config = files("$rootDir/config/detekt/detekt.yml") // Use your custom config
 }

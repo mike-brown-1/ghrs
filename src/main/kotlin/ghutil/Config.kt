@@ -3,7 +3,6 @@ package ghutil
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.ExperimentalHoplite
 import com.sksamuel.hoplite.addFileSource
-import com.sksamuel.hoplite.addResourceSource
 import kotlin.system.exitProcess
 
 data class Config(
@@ -19,42 +18,39 @@ data class Config(
 fun loadConfig(path: String): Config {
     val config = ConfigLoaderBuilder.default()
         .withExplicitSealedTypes()
-//        .addResourceSource(path)
         .addFileSource(path)
         .build()
         .loadConfigOrThrow<Config>()
     return config
 }
 
-fun overrideConfig(
-    config: Config,
-    terms: List<String>,
-    languages: List<String>,
-    sort: String?,
-    order: String?,
-    stars: List<String>?,
-    limit: Int?
-): Config {
+fun overrideConfig(config: Config, command: Command): Config {
     val result = config
-    if (terms.isNotEmpty()) {
-        result.terms.addAll(terms)
+    if (command.terms.isNotEmpty()) {
+        result.terms.addAll(command.terms)
     }
-    if (terms.isEmpty()) {
+    if (result.terms.isEmpty()) {
         println("You must provide a term to search for")
         exitProcess(10)
     }
-    result.stars = validateUpdateStars(stars, config.stars)
-    if (languages.isNotEmpty()) {
-        result.languages.addAll(languages)
+    result.stars = validateUpdateStars(command.stars, config.stars)
+    if (command.languages.isNotEmpty()) {
+        result.languages.addAll(command.languages)
     }
-    if (sort != null && sort.isNotEmpty()) {
-        result.sort = sort
+    if (command.sort != null) {
+        val theSort = command.sort!!
+        if (theSort.isNotEmpty()) {
+            result.sort = command.sort
+        }
     }
-    if (order != null && order.isNotEmpty()) {
-        result.order = order
+    if (command.order != null) {
+        val theOrder = command.order!!
+        if (theOrder.isNotEmpty()) {
+            result.order = theOrder
+        }
     }
-    if (limit != null) {
-        result.limit = limit
+    if (command.limit != null) {
+        result.limit = command.limit
     }
 
     return result

@@ -11,7 +11,6 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.int
-import kotlin.system.exitProcess
 
 class Command: CliktCommand(name = "ghsearch") {
     val terms: List<String> by argument()
@@ -47,7 +46,7 @@ class Command: CliktCommand(name = "ghsearch") {
         println("configFile: ${this.configFile}")
         configFile?.let { config = loadConfig(it) }
         // TODO pass this to avoid naming all options
-        config = overrideConfig(config, terms, languages, sort, order, stars, limit)
+        config = overrideConfig(config, this)
         println("""running, terms: ${config.terms}, languages: ${config.languages}, sort: ${config.sort}, 
             |sortOrder: ${config.order}""".trimMargin())
         val repositories = searchPublicRepos(config)
