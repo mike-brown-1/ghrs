@@ -1,9 +1,11 @@
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     application
     id("com.github.johnrengelman.shadow") version("8.1.1")
-    id("com.github.ben-manes.versions") version("0.51.0")
-
+    id("com.github.ben-manes.versions") version("0.52.0")
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
 repositories {
@@ -12,8 +14,8 @@ repositories {
 
 dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
-    implementation("org.json:json:20231013")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
+    implementation("org.json:json:20250517")
     implementation("com.github.ajalt.clikt:clikt:5.0.3")
     implementation("com.sksamuel.hoplite:hoplite-core:2.9.0")
     implementation("com.sksamuel.hoplite:hoplite-hocon:2.9.0")
@@ -39,6 +41,23 @@ application {
 version = "0.4.0"
 
 tasks.named<Test>("test") {
-    // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+fun isNonStable(version: String): Boolean {
+    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
+    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+    val isStable = stableKeyword || regex.matches(version)
+    return isStable.not()
+}
+
+// https://github.com/ben-manes/gradle-versions-plugin
+tasks.withType<DependencyUpdatesTask> {
+    rejectVersionIf {
+        isNonStable(candidate.version)
+    }
+}
+
+detekt {
+    ignoreFailures = true
 }

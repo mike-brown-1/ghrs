@@ -31,7 +31,8 @@ class Command: CliktCommand(name = "ghsearch") {
         .choice("asc", "desc")
 
     val stars by option("--stars")
-        .help("Constrain search based on stars: operator ',' count (example: '>=,200'). Make sure you quote the option value.")
+        .help("""Constrain search based on stars: operator ',' count (example: '>=,200'). 
+            |Make sure you quote the option value.""".trimMargin())
         .split(",")
 
     val limit: Int? by option("--limit")
@@ -43,13 +44,12 @@ class Command: CliktCommand(name = "ghsearch") {
 
     override fun run() {
         var config = Config()
-//        configFile?.let { config = loadConfig(it) }
-        if (configFile != null) {
-            val delegateString: String = configFile!!
-            config = loadConfig(delegateString)
-        }
+        println("configFile: ${this.configFile}")
+        configFile?.let { config = loadConfig(it) }
+        // TODO pass this to avoid naming all options
         config = overrideConfig(config, terms, languages, sort, order, stars, limit)
-        println("running, terms: ${config.terms}, languages: ${config.languages}, sort: ${config.sort}, sortOrder: ${config.order}")
+        println("""running, terms: ${config.terms}, languages: ${config.languages}, sort: ${config.sort}, 
+            |sortOrder: ${config.order}""".trimMargin())
         val repositories = searchPublicRepos(config)
         var item = 1
         run {
