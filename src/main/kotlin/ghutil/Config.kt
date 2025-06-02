@@ -11,7 +11,9 @@ data class Config(
     var terms: MutableList<String> = mutableListOf(),
     var sort: String? = null,
     var order: String? = null,
-    var limit: Int? = null
+    var limit: Int? = null,
+    var created: String? = null,
+    var updated: String? = null
 )
 
 @OptIn(ExperimentalHoplite::class)
@@ -33,7 +35,9 @@ fun overrideConfig(config: Config, command: Command): Config {
         println("You must provide a term to search for")
         exitProcess(10)
     }
-    result.stars = validateUpdateStars(command.stars, config.stars)
+    result.stars = setOption(command.stars, config.stars, "stars")
+    result.created = setOption(command.created, config.created, "created")
+    result.updated = setOption(command.updated, config.updated, "updated")
     if (command.languages.isNotEmpty()) {
         result.languages.addAll(command.languages)
     }
@@ -56,35 +60,34 @@ fun overrideConfig(config: Config, command: Command): Config {
     return result
 }
 
-fun validateUpdateStars(commandLine: List<String>?, loaded: String?): String {
-    var result = formatStars(loaded?.split(","))
-    val cline = formatStars(commandLine)
+fun setOption(commandLine: List<String>?, loaded: String?, optionName: String): String {
+    var result = parseOption(loaded?.split(","), optionName)
+    val cline = parseOption(commandLine, optionName)
     if (cline.isNotEmpty()) {
         result = cline
     }
     return result
 }
 
-private fun formatStars(stars: List<String>?): String {
+private fun parseOption(value: List<String>?, optionName: String): String {
     // >=200, <100, and <=99, 100..500
     var result = ""
     val operators = listOf(">", ">=", "<", "<=")
-    if (stars != null) {
-        if (stars.size == 2) {
-            if (stars[0] in operators && stars[1].toIntOrNull() != null) {
-                result = "${stars[0]}${stars[1]}"
+    if (value != null) {
+        if (value.size == 2) {
+            if (value[0] in operators) { // when only stars,  && value[1].toIntOrNull() != null
+                result = "${value[0]}${value[1]}"
             } else {
-                println("ERROR: stars parameter must be <operator>,<number of stars>")
+                println("ERROR: $optionName parameter invalid")
             }
-        } else if (stars.size == 3) {
-            if (stars[0].toIntOrNull() != null && stars[1] == ".." && stars[2].toIntOrNull() != null) {
-                result = "${stars[0]}..${stars[2]}"
+        } else if (value.size == 3) {
+            if (value[1] == "..") {
+                result = "${value[0]}..${value[2]}"
             } else {
-                println("ERROR: for three parts, a range is expected (<num>,..,<num>")
+                println("ERROR: $optionName parameter invalid")
             }
         } else {
-            println("Invalid stars param. Must be <op>,number or number,..,number")
-            println("Valid operators are: >, >=, <, <=")
+            println("ERROR: $optionName parameter invalid")
         }
     }
     return result

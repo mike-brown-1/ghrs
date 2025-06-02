@@ -38,6 +38,14 @@ class Command: CliktCommand(name = "ghsearch") {
         .help("Limit the search to x repositories")
         .int()
 
+    val created by option("--created")
+        .help("Search by created date (YYYY/MM/DD). Uses operators (see --stars)")
+        .split(",")
+
+    val updated by option("--updated")
+        .help("Search by updated/pushed date (YYYY/MM/DD). Uses operators (see --stars)")
+        .split(",")
+
     val configFile: String? by option("--config")
         .help("Configuration file that will be overridden by command line options")
 
@@ -48,7 +56,9 @@ class Command: CliktCommand(name = "ghsearch") {
         // TODO pass this to avoid naming all options
         config = overrideConfig(config, this)
         println("""running, terms: ${config.terms}, languages: ${config.languages}, sort: ${config.sort}, 
-            |sortOrder: ${config.order}""".trimMargin())
+            |sortOrder: ${config.order}
+            |
+            |created: ${created}, updated: ${updated}""".trimMargin())
         val repositories = searchPublicRepos(config)
         var item = 1
         run {

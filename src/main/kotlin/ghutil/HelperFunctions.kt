@@ -26,6 +26,12 @@ fun searchPublicRepos(
     if (config.stars != null && config.stars!!.length > 0) {
         searchBuilder.stars(config.stars)
     }
+    if (config.created != null && config.created!!.length > 0) {
+        searchBuilder.created(config.created)
+    }
+    if (config.updated != null && config.updated!!.length > 0) {
+        searchBuilder.pushed(config.updated)
+    }
     if (config.sort != null) {
         searchBuilder.sort(GHRepositorySearchBuilder.Sort.valueOf(config.sort!!.uppercase()))
     }
