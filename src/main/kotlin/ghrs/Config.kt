@@ -1,4 +1,4 @@
-package ghutil
+package ghrs
 
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.ExperimentalHoplite
@@ -32,7 +32,7 @@ fun overrideConfig(config: Config, command: Command): Config {
         result.terms.addAll(command.terms)
     }
     if (result.terms.isEmpty()) {
-        println("You must provide a term to search for")
+        println("You must provide one or more term to search for.  Use -h option for help.")
         exitProcess(10)
     }
     result.stars = setOption(command.stars, config.stars, "stars")

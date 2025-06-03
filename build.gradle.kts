@@ -36,7 +36,7 @@ java {
 }
 
 application {
-    mainClass = "ghutil.CommandKt"
+    mainClass = "ghrs.CommandKt"
 }
 version = "0.6.0"
 
