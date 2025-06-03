@@ -1,6 +1,7 @@
-# ghsearch
+# ghrs 
 
-Command line utility to quickly search GitHub public repositories.  Options
+ghrs (**G**it**H**ub **R**epository **S**earch) is a command line utility to quickly 
+search GitHub public repositories.  Options
 are provided to qualify or limit the search and to sort the results.
 
 Uses [GitHub API for Java](https://hub4j.github.io/github-api/) library

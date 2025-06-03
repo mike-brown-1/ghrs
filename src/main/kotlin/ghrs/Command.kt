@@ -1,4 +1,4 @@
-package ghutil
+package ghrs
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.main
@@ -12,7 +12,7 @@ import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.int
 
-class Command: CliktCommand(name = "ghsearch") {
+class Command: CliktCommand(name = "ghrs") {
     val terms: List<String> by argument()
         .help("Terms to search for")
         .multiple()

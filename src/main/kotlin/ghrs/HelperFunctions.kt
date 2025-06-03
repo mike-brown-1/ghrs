@@ -1,4 +1,4 @@
-package ghutil
+package ghrs
 
 import org.kohsuke.github.GHDirection
 import org.kohsuke.github.GHRepository
