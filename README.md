@@ -22,16 +22,24 @@ limits on searching.
 
 ## Usage
 ```shell
-Usage: ghsearch [<options>] [<terms>]...
+Usage: ghrs [<options>] [<terms>]...
 
 Options:
-  -l, --language=<text>                                Primary language. Can be used multiple times.
-  -s, --sort=(stars|forks|help-wanted-issues|updated)  Specify sort option.
-  -o, --sortOrder=(asc|desc)                           Specify sort order.
-  --stars=<text>                                       Constrain search based on stars: operator ',' count (example: '>=,200'). Make sure you quote the option value.
-  --limit=<int>                                        Limit the search to x repositories
-  --config=<text>                                      Configuration file that will be overridden by command line options
-  -h, --help                                           Show this message and exit
+  -l, --language=<text>       Primary language. Can be used multiple times.
+  -s, --sort=(stars|forks|help-wanted-issues|updated)
+                              Specify sort option.
+  -o, --sortOrder=(asc|desc)  Specify sort order.
+  --stars=<text>              Constrain search based on stars: operator ','
+                              count (example: '>=,200'). Make sure you quote
+                              the option value.
+  --limit=<int>               Limit the search to x repositories
+  --created=<text>            Search by created date (YYYY-MM-DD). Uses
+                              operators (see --stars)
+  --updated=<text>            Search by updated/pushed date (YYYY-MM-DD). Uses
+                              operators (see --stars)
+  --config=<text>             Configuration file that will be overridden by
+                              command line options
+  -h, --help                  Show this message and exit
 
 Arguments:
   <terms>  Terms to search for

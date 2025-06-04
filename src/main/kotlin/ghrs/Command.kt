@@ -6,6 +6,7 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.help
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.arguments.multiple
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.split
@@ -35,15 +36,15 @@ class Command: CliktCommand(name = "ghrs") {
         .split(",")
 
     val limit: Int? by option("--limit")
-        .help("Limit the search to x repositories")
-        .int()
+        .help("Limit the search to x repositories.  Default is 30.")
+        .int().default(30)
 
     val created by option("--created")
-        .help("Search by created date (YYYY/MM/DD). Uses operators (see --stars)")
+        .help("Search by created date (YYYY-MM-DD). Uses operators (see --stars)")
         .split(",")
 
     val updated by option("--updated")
-        .help("Search by updated/pushed date (YYYY/MM/DD). Uses operators (see --stars)")
+        .help("Search by updated/pushed date (YYYY-MM-DD). Uses operators (see --stars)")
         .split(",")
 
     val configFile: String? by option("--config")
