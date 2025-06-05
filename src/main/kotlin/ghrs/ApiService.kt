@@ -14,14 +14,24 @@ class ApiService {
     private val client = OkHttpClient()
     private var authenticatedUser: User? = null
 
-    fun repoSearch(term: String) {
+    fun repoSearch(config: Config): RepoSearchResponse? {
+        var repoSearchResponse: RepoSearchResponse? = null
         val builder = getRequestBuilder()
-        builder.url("$APIPREFIX/search/repositories?q=$term")
+        // TODO need fun to build "query" from config
+        builder.url("$APIPREFIX/search/repositories?q=xml")
         val request = builder.build()
         client.newCall(request).execute().use { response ->
-            println(response.code)
+            if (response.isSuccessful) {
+                val bodyString = response.body!!.string()
+                val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+                val jsonAdapter: JsonAdapter<RepoSearchResponse> = moshi.adapter(RepoSearchResponse::class.java)
+                repoSearchResponse = jsonAdapter.fromJson(bodyString)
+            } else {
+                println("Response not successful. Code: ${response.code}, Message: ${response.message}")
+            }
         }
-
+        // TODO handle pagination up to limit
+        return repoSearchResponse
     }
 
     private fun getRequestBuilder(): Request.Builder {
@@ -46,7 +56,7 @@ class ApiService {
                     val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
                     val jsonAdapter: JsonAdapter<User> = moshi.adapter(User::class.java)
 
-                    val authenticatedUser = jsonAdapter.fromJson(bodyString)
+                    authenticatedUser = jsonAdapter.fromJson(bodyString)
                     println("user: $authenticatedUser")
 
                     authorized = true
