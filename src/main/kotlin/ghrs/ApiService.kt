@@ -1,5 +1,8 @@
 package ghrs
 
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -9,6 +12,7 @@ class ApiService {
     private var authorized = false
     private val APIPREFIX = "https://api.github.com"
     private val client = OkHttpClient()
+    private var authenticatedUser: User? = null
 
     fun repoSearch(term: String) {
         val builder = getRequestBuilder()
@@ -37,7 +41,14 @@ class ApiService {
                 if (response.code == 401) {
                     println("Authorization token is not valid")
                 } else {
-                    println(response.body!!.string())
+                    val bodyString = response.body!!.string()
+                    println(bodyString)
+                    val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+                    val jsonAdapter: JsonAdapter<User> = moshi.adapter(User::class.java)
+
+                    val authenticatedUser = jsonAdapter.fromJson(bodyString)
+                    println("user: $authenticatedUser")
+
                     authorized = true
                 }
             }

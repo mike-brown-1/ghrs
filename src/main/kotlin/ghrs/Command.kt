@@ -54,7 +54,6 @@ class Command: CliktCommand(name = "ghrs") {
         var config = Config()
         println("configFile: ${this.configFile}")
         configFile?.let { config = loadConfig(it) }
-        // TODO pass this to avoid naming all options
         config = overrideConfig(config, this)
         println("""running, terms: ${config.terms}, languages: ${config.languages}, sort: ${config.sort}, 
             |sortOrder: ${config.order}
