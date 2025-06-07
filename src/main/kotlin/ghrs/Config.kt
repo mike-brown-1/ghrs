@@ -11,7 +11,7 @@ data class Config(
     var terms: MutableList<String> = mutableListOf(),
     var sort: String? = null,
     var order: String? = null,
-    var limit: Int? = null,
+    var limit: Int = 30,
     var created: String? = null,
     var updated: String? = null
 )

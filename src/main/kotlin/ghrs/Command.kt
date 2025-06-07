@@ -35,7 +35,7 @@ class Command: CliktCommand(name = "ghrs") {
             |Make sure you quote the option value.""".trimMargin())
         .split(",")
 
-    val limit: Int? by option("--limit")
+    val limit: Int by option("--limit")
         .help("Limit the search to x repositories.  Default is 30.")
         .int().default(30)
 

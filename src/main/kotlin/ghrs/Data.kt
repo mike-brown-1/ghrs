@@ -1,5 +1,7 @@
 package ghrs
 
+import kotlin.collections.mutableListOf
+
 data class User(
     val login: String,
     val id: Int,
@@ -12,7 +14,7 @@ data class User(
 data class RepoSearchResponse (
     val total_count: Int,
     val incomplete_results: Boolean,
-    val items: List<Repository>
+    var items: MutableList<Repository>  = mutableListOf<Repository>()
 )
 
 data class Repository (

@@ -11,27 +11,89 @@ class ApiService {
     private val AUTHTOKEN = System.getenv("GH_TOKEN")
     private var authorized = false
     private val APIPREFIX = "https://api.github.com"
+    private val MAXREPOREQUEST = 100
     private val client = OkHttpClient()
     private var authenticatedUser: User? = null
 
     fun repoSearch(config: Config): RepoSearchResponse? {
         var repoSearchResponse: RepoSearchResponse? = null
+        var nextPageUrl: String = ""
         val builder = getRequestBuilder()
-        // TODO need fun to build "query" from config
+        // TODO need fun to build "query" from config should also set per page based on requested limit
         builder.url("$APIPREFIX/search/repositories?q=xml")
         val request = builder.build()
         client.newCall(request).execute().use { response ->
             if (response.isSuccessful) {
+                nextPageUrl = getNextPageUrl(response.header("link"))
                 val bodyString = response.body!!.string()
                 val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
                 val jsonAdapter: JsonAdapter<RepoSearchResponse> = moshi.adapter(RepoSearchResponse::class.java)
                 repoSearchResponse = jsonAdapter.fromJson(bodyString)
             } else {
-                println("Response not successful. Code: ${response.code}, Message: ${response.message}")
+                println("Request was not successful. Code: ${response.code}, Message: ${response.message}")
             }
         }
-        // TODO handle pagination up to limit
+        if (repoSearchResponse != null && repoSearchResponse.items != null) {
+            if (repoSearchResponse.items.size > config.limit) {
+                // replace "items" with new list with only the requested items
+            } else {
+                repoSearchResponse.items.addAll(fetchMoreData(config.limit, repoSearchResponse.items.size, nextPageUrl))
+            }
+        }
         return repoSearchResponse
+    }
+
+    private fun fetchMoreData(desired: Int, have: Int, nextUrl: String): List<Repository> {
+        val repoList = mutableListOf<Repository>()
+        var needed = desired - have
+        var nextPageUrl = nextUrl
+        while (needed > 0 && nextPageUrl.isNotEmpty()) {
+            val builder = getRequestBuilder()
+            builder.url(nextPageUrl)
+            val request = builder.build()
+            client.newCall(request).execute().use { response ->
+                if (response.isSuccessful) {
+                    nextPageUrl = getNextPageUrl(response.header("link"))
+
+                    val bodyString = response.body!!.string()
+                    val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+                    val jsonAdapter: JsonAdapter<RepoSearchResponse> = moshi.adapter(RepoSearchResponse::class.java)
+                    val repoSearchResponse = jsonAdapter.fromJson(bodyString)
+                    if (needed < repoSearchResponse!!.items.size) {
+                        repoList.addAll(repoSearchResponse.items.take(needed))
+                        needed = 0
+                    } else {
+                        repoList.addAll(repoSearchResponse.items)
+                        needed = needed - repoSearchResponse.items.size
+                    }
+                } else {
+                    println("Subsequent request was not successful. Code: ${response.code}, Message: ${response.message}")
+                }
+            }
+        }
+
+        return repoList
+    }
+
+    private fun getNextPageUrl(data: String?): String {
+        var result: String = ""
+
+        if (!data.isNullOrBlank()) {
+            val links = data.split(",")
+
+            for (link in links) {
+                val trimmedLink = link.trim()
+                if (trimmedLink.contains("""rel="next"""")) {
+                    val urlStart = trimmedLink.indexOf('<')
+                    val urlEnd = trimmedLink.indexOf('>')
+
+                    if (urlStart != -1 && urlEnd != -1 && urlStart < urlEnd) {
+                        result = trimmedLink.substring(urlStart + 1, urlEnd)
+                    }
+                }
+            }
+        }
+        return result
     }
 
     private fun getRequestBuilder(): Request.Builder {
