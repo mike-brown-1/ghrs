@@ -65,6 +65,8 @@ To generate Detekt rules so you can modify them, run: `./gradlew detektGenerateC
 `config/detekt/detekt.yml` so you can modify the rules.
 
 ## History
+* v 0.7.0 - Honors limit option
+* v 0.6.0 - Supports filter by created and updated 
 * v 0.5.0 - Replace individual properties with Command object for `overrideConfig`. Warn if not logged in.  Modify
 detekt rules.
 * v 0.4.0 - Support HOCON configuration files.
