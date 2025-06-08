@@ -5,6 +5,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import java.net.URLEncoder
 
 class ApiService {
     private var requestBuilder: Request.Builder? = null
@@ -20,7 +21,7 @@ class ApiService {
         var nextPageUrl: String = ""
         val builder = getRequestBuilder()
         // TODO need fun to build "query" from config should also set per page based on requested limit
-        builder.url("$APIPREFIX/search/repositories?q=xml")
+        builder.url("$APIPREFIX/search/repositories?q=${queryBuilder(config)}")
         val request = builder.build()
         client.newCall(request).execute().use { response ->
             if (response.isSuccessful) {
@@ -33,8 +34,12 @@ class ApiService {
                 println("Request was not successful. Code: ${response.code}, Message: ${response.message}")
             }
         }
-        if (repoSearchResponse != null && repoSearchResponse.items != null) {
+        if (repoSearchResponse != null) {
             if (repoSearchResponse.items.size > config.limit) {
+                val requestedItems = repoSearchResponse.items.take(config.limit)
+                println("requestedItems size: ${requestedItems.size}")
+                repoSearchResponse.items.clear()
+                repoSearchResponse.items.addAll(requestedItems)
                 // replace "items" with new list with only the requested items
             } else {
                 repoSearchResponse.items.addAll(fetchMoreData(config.limit, repoSearchResponse.items.size, nextPageUrl))
@@ -126,6 +131,53 @@ class ApiService {
             }
         }
         return requestBuilder!!
+    }
+
+    fun queryBuilder(config: Config): String {
+        var result = ""
+        val builder = StringBuilder()
+        config.terms.forEach { term ->
+            builder.append("$term ")
+        }
+        config.languages.forEach { language ->
+            builder.append("language:$language ")
+        }
+        if (config.stars != null) {
+            val starList = config.stars
+            if (starList?.isEmpty() == false) {
+                builder.append("stars:${starList[0]}${starList[1]} ")
+            }
+        }
+        if (config.created != null) {
+            val createdList = config.created
+            if (createdList?.isEmpty() == false) {
+                builder.append("created:${createdList[0]}${createdList[1]} ")
+            }
+        }
+        if (config.updated != null) {
+            val updatedList = config.updated
+            if (updatedList?.isEmpty() == false) {
+                builder.append("pushed:${updatedList[0]}${updatedList[1]} ")
+            }
+        }
+        val qualifiers = builder.toString().trim()
+
+        val builder2 = StringBuilder()
+        if (config.sort != null) {
+            builder2.append("&sort=${config.sort}")
+        }
+        if (config.order != null) {
+            builder2.append("&order=${config.order}")
+        }
+        if (config.limit <= 100) {
+            builder2.append("&per_page=${config.limit}")
+        }
+
+        val combined = "$qualifiers${builder2.toString()}"
+        println("combined: $combined")
+        result = URLEncoder.encode(combined, "utf-8")
+        println("encoded: $result")
+        return result
     }
 }
 
