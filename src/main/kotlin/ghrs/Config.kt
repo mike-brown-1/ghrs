@@ -53,7 +53,7 @@ fun overrideConfig(config: Config, command: Command): Config {
             result.order = theOrder
         }
     }
-    if (command.limit != null) {
+    if (command.limit != config.limit) { // both default to 30
         result.limit = command.limit
     }
 

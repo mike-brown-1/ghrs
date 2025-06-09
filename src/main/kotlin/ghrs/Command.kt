@@ -65,18 +65,6 @@ class Command: CliktCommand(name = "ghrs") {
         response?.items?.forEach { repo ->
             println("id: ${repo.id}, name: ${repo.name}, stars: ${repo.stargazers_count}")
         }
-
-//        val repositories = searchPublicRepos(config)
-//        var item = 1
-//        run {
-//            repositories.forEach { repo ->
-//                println("\n\nRepository: ${repo.name} by ${repo.owner.login}/${repo.owner.name}/${repo.owner.company}")
-//                println("Description: ${repo.description}")
-//                println("Stars: ${repo.stargazersCount}, URL: ${repo.htmlUrl}")
-//                println("Created: ${repo.createdAt} / Updated: ${repo.updatedAt}")
-//                if (limit != null && item++ == limit!!) return@run
-//            }
-//        }
     }
 }
 

@@ -7,12 +7,13 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.net.URLEncoder
 
+const val API_PREFIX = "https://api.github.com"
+const val MAX_REPO_REQUEST = 100
+
 class ApiService {
     private var requestBuilder: Request.Builder? = null
-    private val AUTHTOKEN = System.getenv("GH_TOKEN")
+    private val AUTH_TOKEN = System.getenv("GH_TOKEN")
     private var authorized = false
-    private val APIPREFIX = "https://api.github.com"
-    private val MAXREPOREQUEST = 100
     private val client = OkHttpClient()
     private var authenticatedUser: User? = null
 
@@ -20,18 +21,17 @@ class ApiService {
         var repoSearchResponse: RepoSearchResponse? = null
         var nextPageUrl: String = ""
         val builder = getRequestBuilder()
-        // TODO need fun to build "query" from config should also set per page based on requested limit
-        builder.url("$APIPREFIX/search/repositories?q=${queryBuilder(config)}")
+        builder.url("$API_PREFIX/search/repositories?q=${queryBuilder(config)}")
         val request = builder.build()
         client.newCall(request).execute().use { response ->
             if (response.isSuccessful) {
                 nextPageUrl = getNextPageUrl(response.header("link"))
-                val bodyString = response.body!!.string()
+                val bodyString = response.body?.string()
                 val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
                 val jsonAdapter: JsonAdapter<RepoSearchResponse> = moshi.adapter(RepoSearchResponse::class.java)
-                repoSearchResponse = jsonAdapter.fromJson(bodyString)
+                repoSearchResponse = jsonAdapter.fromJson(bodyString!!)
             } else {
-                println("Request was not successful. Code: ${response.code}, Message: ${response.message}")
+                println("*** Request was not successful. Code: ${response.code}, Message: ${response.message}")
             }
         }
         if (repoSearchResponse != null) {
@@ -40,7 +40,6 @@ class ApiService {
                 println("requestedItems size: ${requestedItems.size}")
                 repoSearchResponse.items.clear()
                 repoSearchResponse.items.addAll(requestedItems)
-                // replace "items" with new list with only the requested items
             } else {
                 repoSearchResponse.items.addAll(fetchMoreData(config.limit, repoSearchResponse.items.size, nextPageUrl))
             }
@@ -59,20 +58,25 @@ class ApiService {
             client.newCall(request).execute().use { response ->
                 if (response.isSuccessful) {
                     nextPageUrl = getNextPageUrl(response.header("link"))
-
-                    val bodyString = response.body!!.string()
+                    val bodyString = response.body?.string()
                     val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
                     val jsonAdapter: JsonAdapter<RepoSearchResponse> = moshi.adapter(RepoSearchResponse::class.java)
-                    val repoSearchResponse = jsonAdapter.fromJson(bodyString)
-                    if (needed < repoSearchResponse!!.items.size) {
-                        repoList.addAll(repoSearchResponse.items.take(needed))
-                        needed = 0
+                    val repoSearchResponse = jsonAdapter.fromJson(bodyString!!)
+                    if (repoSearchResponse != null) {
+                        if (needed < repoSearchResponse.items.size) {
+                            repoList.addAll(repoSearchResponse.items.take(needed))
+                            needed = 0
+                        } else {
+                            repoList.addAll(repoSearchResponse.items)
+                            needed = needed - repoSearchResponse.items.size
+                        }
                     } else {
-                        repoList.addAll(repoSearchResponse.items)
-                        needed = needed - repoSearchResponse.items.size
+                        println("*** Parsing of response JSON failed")
                     }
                 } else {
-                    println("Subsequent request was not successful. Code: ${response.code}, Message: ${response.message}")
+                    println("""
+                        |*** Subsequent request was not successful. Code: ${response.code}
+                        |, Message: ${response.message}""".trimIndent())
                 }
             }
         }
@@ -108,15 +112,15 @@ class ApiService {
             requestBuilder = Request.Builder()
                 .header("User-Agent", "ghrs")
                 .addHeader("Accept", "application/vnd.github.v3+json")
-            if (AUTHTOKEN != null && AUTHTOKEN.isNotEmpty()) {
-                requestBuilder?.addHeader("Authorization", "Bearer $AUTHTOKEN")
+            if (AUTH_TOKEN != null && AUTH_TOKEN.isNotEmpty()) {
+                requestBuilder?.addHeader("Authorization", "Bearer $AUTH_TOKEN")
             }
             val requestCopy = requestBuilder!!
-            requestCopy.url("$APIPREFIX/user")
+            requestCopy.url("$API_PREFIX/user")
             val request = requestCopy.build()
             client.newCall(request).execute().use { response ->
                 if (response.code == 401) {
-                    println("Authorization token is not valid")
+                    println("*** Authorization token is not valid")
                 } else {
                     val bodyString = response.body!!.string()
                     println(bodyString)
@@ -125,7 +129,6 @@ class ApiService {
 
                     authenticatedUser = jsonAdapter.fromJson(bodyString)
                     println("user: $authenticatedUser")
-
                     authorized = true
                 }
             }
@@ -169,7 +172,7 @@ class ApiService {
         if (config.order != null) {
             builder2.append("&order=${config.order}")
         }
-        if (config.limit <= 100) {
+        if (config.limit <= MAX_REPO_REQUEST) {
             builder2.append("&per_page=${config.limit}")
         }
 
