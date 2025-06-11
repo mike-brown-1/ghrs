@@ -23,6 +23,7 @@ class ApiService {
         val builder = getRequestBuilder()
         builder.url("$API_PREFIX/search/repositories?q=${queryBuilder(config)}")
         val request = builder.build()
+        println("--- request string: ${request}")
         client.newCall(request).execute().use { response ->
             if (response.isSuccessful) {
                 nextPageUrl = getNextPageUrl(response.header("link"))
@@ -139,6 +140,7 @@ class ApiService {
     fun queryBuilder(config: Config): String {
         var result = ""
         val builder = StringBuilder()
+        var terms = ""
         config.terms.forEach { term ->
             builder.append("$term ")
         }
@@ -146,9 +148,9 @@ class ApiService {
             builder.append("language:$language ")
         }
         if (config.stars != null) {
-            val starList = config.stars
-            if (starList?.isEmpty() == false) {
-                builder.append("stars:${starList[0]}${starList[1]} ")
+            val stars = config.stars
+            if (stars?.isEmpty() == false) {
+                builder.append("stars:${stars} ")
             }
         }
         if (config.created != null) {
@@ -163,7 +165,7 @@ class ApiService {
                 builder.append("pushed:${updatedList[0]}${updatedList[1]} ")
             }
         }
-        val qualifiers = builder.toString().trim()
+        val qualifiers = URLEncoder.encode(builder.toString().trim(), "utf-8")
 
         val builder2 = StringBuilder()
         if (config.sort != null) {
@@ -175,12 +177,9 @@ class ApiService {
         if (config.limit <= MAX_REPO_REQUEST) {
             builder2.append("&per_page=${config.limit}")
         }
+        val options = builder2.toString()
 
-        val combined = "$qualifiers${builder2.toString()}"
-        println("combined: $combined")
-        result = URLEncoder.encode(combined, "utf-8")
-        println("encoded: $result")
-        return result
+        return "$qualifiers${options}"
     }
 }
 
