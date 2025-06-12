@@ -138,9 +138,7 @@ class ApiService {
     }
 
     fun queryBuilder(config: Config): String {
-        var result = ""
         val builder = StringBuilder()
-        var terms = ""
         config.terms.forEach { term ->
             builder.append("$term ")
         }

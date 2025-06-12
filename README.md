@@ -2,23 +2,14 @@
 
 ghrs (**G**it**H**ub **R**epository **S**earch) is a command line utility to quickly 
 search GitHub public repositories.  Options
-are provided to qualify or limit the search and to sort the results.
-
-Uses [GitHub API for Java](https://hub4j.github.io/github-api/) library
-to interact with the GitHub REST API and leverage the existing Java POJO
-objects.
-
-[CLIKT](https://ajalt.github.io/clikt/) is used to parse the command
-line options.  This library is Graalvm friendly as it does not use
-reflection.
-
-Developed with Kotlin and Gradle build tool.
+are provided to filter, limit, and sort the results.
 
 ## Authorization
 Authentication with GitHub is not required to search public repositories.  It is recommended as it increases the 
-limits on searching.
+limits on searching.  The application will use an environment variable, GH_TOKEN, value for authentication.
+This should be set to a GitHub user's personal access token. 
 
-
+A warning message is displayed if the GH_TOKEN is not set or is invalid.
 
 ## Usage
 ```shell
@@ -56,11 +47,20 @@ language of the repository.
 The configuration file must be on 
 [HOCON](https://github.com/lightbend/config/blob/main/HOCON.md) format.
 
-## Building
+## Developers
+
+Developed with Kotlin and Gradle build tool.
+
+[CLIKT](https://ajalt.github.io/clikt/) is used to parse the command
+line options.  This library is Graalvm friendly as it does not use
+reflection.
+
+### Building
 Use `./gradlew shadowJar`.
 
-## Detekt
+### Detekt
 
+Detekt is a static code analysis took for the Kotlin language.
 To generate Detekt rules so you can modify them, run: `./gradlew detektGenerateConfig`.  This will create:
 `config/detekt/detekt.yml` so you can modify the rules.
 
