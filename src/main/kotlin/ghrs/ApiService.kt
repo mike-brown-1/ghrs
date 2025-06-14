@@ -152,15 +152,16 @@ class ApiService {
             }
         }
         if (config.created != null) {
-            val createdList = config.created
-            if (createdList?.isEmpty() == false) {
-                builder.append("created:${createdList[0]}${createdList[1]} ")
+            val created
+            = config.created
+            if (created?.isEmpty() == false) {
+                builder.append("created:${created} ")
             }
         }
         if (config.updated != null) {
-            val updatedList = config.updated
-            if (updatedList?.isEmpty() == false) {
-                builder.append("pushed:${updatedList[0]}${updatedList[1]} ")
+            val updated = config.updated
+            if (updated?.isEmpty() == false) {
+                builder.append("pushed:${updated} ")
             }
         }
         val qualifiers = URLEncoder.encode(builder.toString().trim(), "utf-8")

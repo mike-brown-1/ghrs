@@ -65,6 +65,7 @@ To generate Detekt rules so you can modify them, run: `./gradlew detektGenerateC
 `config/detekt/detekt.yml` so you can modify the rules.
 
 ## History
+* v.0.8.1 - Fix issues with created & updated options
 * v.0.8.0 - Handle rest of the query parameters and qualifiers
 * v 0.7.0 - Honors limit option
 * v 0.6.0 - Supports filter by created and updated 
