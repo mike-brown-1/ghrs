@@ -31,7 +31,10 @@ dependencies {
     implementation(kotlin("stdlib"))
     runtimeOnly("org.slf4j:slf4j-api:2.0.17")
     runtimeOnly("org.slf4j:slf4j-simple:2.0.17")
-    implementation("org.jboss.resteasy:resteasy-jackson2-provider:3.1.0.Final")
+    // Upgrading the following to version 6 causes RESTEASY003145 to happen again
+    // TODO Try updating the API project to the latest version of resteasy (currently 6.2.12)
+    // then update the following
+    implementation("org.jboss.resteasy:resteasy-jackson2-provider:5.0.5.Final")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation(libs.junit.jupiter.engine)

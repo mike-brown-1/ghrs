@@ -3,11 +3,9 @@
  */
 package ghrs
 
-import ghrs.ApiService
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import kotlin.test.Test
-import kotlin.test.assertNotNull
 
 class AppTest {
 
@@ -24,14 +22,8 @@ class AppTest {
             created = null,
             updated = null
         )
-        apiService.repoSearch(config)
-    }
-
-    @Test
-    fun decode() {
-        println(URLDecoder.decode("https://api.github.com/search/repositories?q=xml+language%3Ajava+stars%3A%3E%3D300&order=desc&per_page=3", StandardCharsets.UTF_8.toString()))
-
-        println(URLDecoder.decode("https://api.github.com/search/repositories?q=xml+language%3Ajava+stars%3A%3E%3D300+pushed%3A%3E%3D&order=desc&per_page=3", StandardCharsets.UTF_8.toString()))
+        val response = apiService.repoSearch(config)
+        assert(response.totalCount > 0) { "should find results" }
 
     }
 }
