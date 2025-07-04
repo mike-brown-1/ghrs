@@ -1,5 +1,4 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -11,20 +10,10 @@ plugins {
 
 repositories {
     mavenCentral()
-//    flatDir {
-//        dirs("libs")
-//    }
 }
 
 dependencies {
     implementation(files("libs/openapi-java-client-1.1.4-all.jar"))
-/* **************
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
-    implementation("com.squareup.moshi:moshi:1.15.2")
-    implementation("com.squareup.moshi:moshi-kotlin:1.15.2")
-    implementation("org.kohsuke:github-api:2.0-rc.3")
-**************** */
     implementation("com.github.ajalt.clikt:clikt:5.0.3")
     implementation("com.sksamuel.hoplite:hoplite-core:2.9.0")
     implementation("com.sksamuel.hoplite:hoplite-hocon:2.9.0")
@@ -50,7 +39,7 @@ java {
 application {
     mainClass = "ghrs.CommandKt"
 }
-version = "0.8.1"
+version = "0.9.0"
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
