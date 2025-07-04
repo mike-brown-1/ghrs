@@ -13,17 +13,17 @@ repositories {
 }
 
 dependencies {
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
-    implementation("com.squareup.moshi:moshi:1.15.2")
-    implementation("com.squareup.moshi:moshi-kotlin:1.15.2")
+    implementation(files("libs/openapi-java-client-1.1.4-all.jar"))
     implementation("com.github.ajalt.clikt:clikt:5.0.3")
     implementation("com.sksamuel.hoplite:hoplite-core:2.9.0")
     implementation("com.sksamuel.hoplite:hoplite-hocon:2.9.0")
-    implementation("org.kohsuke:github-api:2.0-rc.3")
     implementation(kotlin("stdlib"))
     runtimeOnly("org.slf4j:slf4j-api:2.0.17")
     runtimeOnly("org.slf4j:slf4j-simple:2.0.17")
+    // Upgrading the following to version 6 causes RESTEASY003145 to happen again
+    // TODO Try updating the API project to the latest version of resteasy (currently 6.2.12)
+    // then update the following
+    implementation("org.jboss.resteasy:resteasy-jackson2-provider:5.0.5.Final")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation(libs.junit.jupiter.engine)
@@ -39,7 +39,7 @@ java {
 application {
     mainClass = "ghrs.CommandKt"
 }
-version = "0.8.1"
+version = "0.9.0"
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
@@ -63,4 +63,13 @@ detekt {
     ignoreFailures = true
     toolVersion = "1.23.8" // Use the appropriate version
     config = files("$rootDir/config/detekt/detekt.yml") // Use your custom config
+}
+
+tasks {
+    shadowJar {
+        mergeServiceFiles()
+        append("META-INF/services/javax.ws.rs.ext.Providers")
+        append("META-INF/services/javax.ws.rs.ext.MessageBodyReader")
+        append("META-INF/services/javax.ws.rs.ext.MessageBodyWriter")
+    }
 }

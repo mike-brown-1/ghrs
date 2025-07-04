@@ -3,11 +3,9 @@
  */
 package ghrs
 
-import ghrs.ApiService
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import kotlin.test.Test
-import kotlin.test.assertNotNull
 
 class AppTest {
 
@@ -24,14 +22,154 @@ class AppTest {
             created = null,
             updated = null
         )
-        apiService.repoSearch(config)
+        val response = apiService.repoSearch(config)
+        assert(response.totalCount > 0) { "should find results" }
+
     }
 
     @Test
-    fun decode() {
-        println(URLDecoder.decode("https://api.github.com/search/repositories?q=xml+language%3Ajava+stars%3A%3E%3D300&order=desc&per_page=3", StandardCharsets.UTF_8.toString()))
-
-        println(URLDecoder.decode("https://api.github.com/search/repositories?q=xml+language%3Ajava+stars%3A%3E%3D300+pushed%3A%3E%3D&order=desc&per_page=3", StandardCharsets.UTF_8.toString()))
-
+    fun singleTerm() {
+        val apiService = ApiService()
+        val config = Config(
+            stars = null,
+            languages = mutableListOf(),
+            terms = mutableListOf("xml"),
+            sort = null,
+            order = null,
+            limit = 30,
+            created = null,
+            updated = null
+        )
+        val response = apiService.repoSearch(config)
+        assert(response.totalCount > 0) { "should find results" }
     }
+
+    @Test
+    fun multipleTerms() {
+        val apiService = ApiService()
+        val config = Config(
+            stars = null,
+            languages = mutableListOf(),
+            terms = mutableListOf("xml", "schema"),
+            sort = null,
+            order = null,
+            limit = 30,
+            created = null,
+            updated = null
+        )
+        val response = apiService.repoSearch(config)
+        assert(response.totalCount > 0) { "should find results" }
+    }
+
+    @Test
+    fun javaLanguage() {
+        val apiService = ApiService()
+        val config = Config(
+            stars = null,
+            languages = mutableListOf("java"),
+            terms = mutableListOf("xml"),
+            sort = null,
+            order = null,
+            limit = 30,
+            created = null,
+            updated = null
+        )
+        val response = apiService.repoSearch(config)
+        val repo = response.items[0]
+        assert(repo.language!!.contains("Java")) { "language should include java" }
+    }
+
+    @Test
+    fun limit() {
+        val apiService = ApiService()
+        val config = Config(
+            stars = null,
+            languages = mutableListOf("java"),
+            terms = mutableListOf("xml"),
+            sort = null,
+            order = null,
+            limit = 5,
+            created = null,
+            updated = null
+        )
+        val response = apiService.repoSearch(config)
+        assert(response.items.size == 5) { "limit should be honored" }
+    }
+
+    @Test
+    fun sortAsc() {
+        val apiService = ApiService()
+        val config = Config(
+            stars = null,
+            languages = mutableListOf("java"),
+            terms = mutableListOf("xml"),
+            sort = "stars",
+            order = "asc",
+            limit = 5,
+            created = null,
+            updated = null
+        )
+        val response = apiService.repoSearch(config)
+        val repo1 = response.items[0]
+        val repo2 = response.items[1]
+        assert(repo1.stargazersCount <= repo2.stargazersCount) { "stars should be sorted asc" }
+    }
+
+    @Test
+    fun sortDesc() {
+        val apiService = ApiService()
+        val config = Config(
+            stars = null,
+            languages = mutableListOf("java"),
+            terms = mutableListOf("xml"),
+            sort = "stars",
+            order = "desc",
+            limit = 5,
+            created = null,
+            updated = null
+        )
+        val response = apiService.repoSearch(config)
+        val repo1 = response.items[0]
+        val repo2 = response.items[1]
+        assert(repo1.stargazersCount >= repo2.stargazersCount) { "stars should be sorted desc" }
+    }
+
+    @Test
+    fun stars() {
+        val apiService = ApiService()
+        val config = Config(
+            stars = ">=75",
+            languages = mutableListOf("java"),
+            terms = mutableListOf("xml"),
+            sort = "stars",
+            order = "desc",
+            limit = 5,
+            created = null,
+            updated = null
+        )
+        val response = apiService.repoSearch(config)
+        val repo1 = response.items[0]
+        assert(repo1.stargazersCount >= 75) { "stars filter should be honored" }
+    }
+
+
+    @Test
+    fun updated() {
+        val apiService = ApiService()
+        val config = Config(
+            stars = null,
+            languages = mutableListOf("java"),
+            terms = mutableListOf("xml"),
+            sort = "stars",
+            order = "desc",
+            limit = 5,
+            created = null,
+            updated = ">=2025-01-01"
+        )
+        val response = apiService.repoSearch(config)
+        val repo1 = response.items[0]
+        val min = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+        assert(repo1.pushedAt >= min) { "updated filter should be honored" }
+    }
+
 }
