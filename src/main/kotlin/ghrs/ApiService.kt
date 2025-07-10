@@ -45,6 +45,12 @@ class ApiService {
                 builder.append("stars:${stars} ")
             }
         }
+        if (config.followers != null) {
+            val followers = config.followers
+            if (followers?.isEmpty() == false) {
+                builder.append("followers:${followers} ")
+            }
+        }
         if (config.created != null) {
             val created
                     = config.created

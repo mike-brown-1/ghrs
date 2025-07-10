@@ -23,7 +23,11 @@ Options:
   --stars=<text>              Constrain search based on stars: operator ','
                               count (example: '>=,200'). Make sure you quote
                               the option value.
-  --limit=<int>               Limit the search to x repositories
+  --followers=<text>          Constrain search based on followers (people
+                              'watching'): operator ',' count (example:
+                              '>=,200'). Make sure you quote the option value.
+  --limit=<int>               Limit the search to x repositories. Default is
+                              30.
   --created=<text>            Search by created date (YYYY-MM-DD). Uses
                               operators (see --stars)
   --updated=<text>            Search by updated/pushed date (YYYY-MM-DD). Uses

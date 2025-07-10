@@ -35,6 +35,11 @@ class Command: CliktCommand(name = "ghrs") {
             |Make sure you quote the option value.""".trimMargin())
         .split(",")
 
+    val followers by option("--followers")
+        .help("""Constrain search based on followers (people 'watching'): operator ',' count (example: '>=,200'). 
+            |Make sure you quote the option value.""".trimMargin())
+        .split(",")
+
     val limit: Int by option("--limit")
         .help("Limit the search to x repositories.  Default is 30.")
         .int().default(30)
