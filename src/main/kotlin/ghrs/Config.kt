@@ -7,6 +7,7 @@ import kotlin.system.exitProcess
 
 data class Config(
     var stars: String? = null,
+    var followers: String? = null,
     var languages: MutableList<String> = mutableListOf(),
     var terms: MutableList<String> = mutableListOf(),
     var sort: String? = null,
@@ -36,6 +37,7 @@ fun overrideConfig(config: Config, command: Command): Config {
         exitProcess(10)
     }
     result.stars = setOption(command.stars, config.stars, "stars")
+    result.followers = setOption(command.followers, config.followers, "followers")
     result.created = setOption(command.created, config.created, "created")
     result.updated = setOption(command.updated, config.updated, "updated")
     if (command.languages.isNotEmpty()) {

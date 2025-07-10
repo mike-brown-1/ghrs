@@ -8,4 +8,4 @@ junit-jupiter-engine = "5.12.2"
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter-engine" }
 
 [plugins]
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "2.1.21" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "2.2.0" } # was 2.1.21
