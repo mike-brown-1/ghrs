@@ -68,10 +68,14 @@ class Command: CliktCommand(name = "ghrs") {
         val response = apiService.repoSearch(config)
         println("total results: ${response.totalCount}")
         response.items.forEach { repo ->
+            var desc = repo.description
+            if (desc != null && desc.length > 300) {
+                desc = desc.take(200)
+            }
             println("name: ${repo.name}, stars: ${repo.stargazersCount}, language: ${repo.language}")
             println("created: ${repo.createdAt}, updated: ${repo.updatedAt}")
             println("URL: ${repo.htmlUrl}")
-            println("description: ${repo.description}\n")
+            println("description: ${desc}\n")
         }
     }
 }
